@@ -22,4 +22,5 @@
   , "#jquery-ot"
   , "#runlevel6"
   ]
+, "plugins" : [ "seen", "tell" ]
 }
