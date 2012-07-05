@@ -1,5 +1,5 @@
 const fmt = require( "util" ).format
-    , obj = require( "../node_modules/irc/lib/objects" )
+    , irc = require( "irc-js" )
 
 // Redis stuff
 const TOKEN = "ff774f90da063a0dfa783172f16af4e3"
@@ -12,7 +12,7 @@ const EVENT =
     }
 
 const getKey = function( nick, prefix ) {
-  const id = nick instanceof obj.Person ? nick.id : new obj.Person( nick, null, null ).id
+  const id = nick instanceof irc.Person ? nick.id : new irc.Person( nick, null, null ).id
       , p = prefix || "IRCJS"
   return p + id
 }

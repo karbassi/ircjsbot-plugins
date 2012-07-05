@@ -14,4 +14,12 @@
   , "username" : "irc-js"
   , "password" : null
   }
+, "channels" :
+  [ "#html5"
+  , "#jquery"
+  , "#jquery-dev"
+  , "#jquery-meeting"
+  , "#jquery-ot"
+  , "#runlevel6"
+  ]
 }
