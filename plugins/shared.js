@@ -17,24 +17,29 @@ const getKey = function( nick, prefix ) {
   return p + id
 }
 
-const timeAgo = function( t ) {
-  var diff = Math.round( ( Date.now() - t ) / 1000 )
-  const days  = Math.floor( diff / 86400 )
-      , hours = Math.floor( ( diff -= days * 86400 ) / 3600 )
-      , mins  = Math.floor( ( diff -= hours * 3600 ) / 60 )
-      , secs  = Math.floor( ( diff -= mins * 60 ) )
-      , ago   = []
+const times =
+  [ 1000
+  , 60 * 1000
+  , 60 * 60 * 1000
+  , 24 * 60 * 60 * 1000
+  , 7  * 24 * 60 * 60 * 1000
+  ]
 
-  if ( days )
-    ago.push( days === 1 ? "one day" : days + " days" )
-  if ( hours )
-    ago.push( hours === 1 ? "one hour" : hours + " hours" )
-  if ( mins )
-    ago.push( mins === 1 ? "one minute" : mins + " minutes" )
-  if ( secs )
-    ago.push( secs === 1 ? "one second" : secs + " seconds" )
-  ago.splice( 2 )
-  return ago.join( " and " )
+const labels = [ "s", "m", "h", "d", "w" ]
+
+const timeAgo = function( t, acc ) {
+  const out = acc || []
+  var rem = Math.round( Date.now() - t )
+    , idx = times.length
+    , cnt = 0
+  while ( idx-- ) {
+    cnt = ~~( rem / times[ idx ] )
+    if ( cnt ) {
+      rem -= cnt * times[ idx ]
+      out.push( cnt + labels[ idx ] )
+    }
+  }
+  return out.splice( 0, 2 ).join( ' ' )
 }
 
 const join = function( arr ) {
