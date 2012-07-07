@@ -62,7 +62,6 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       , date  = new Date( Number( parts[1] ) )
       , mesg  = irc.parser.message( parts[2] + "\r\n" )
       , ago   = share.timeAgo( date )
-  logger.log( irc.LEVEL.DEBUG, "DA FUQ=====================", res, mesg )
   if ( ! mesg )
     return msg.reply( fmt( "%s, WTF, could not parse this: %s", msg.from.nick, parts[2] ) )
 
