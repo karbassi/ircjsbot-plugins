@@ -20,6 +20,7 @@
   , "#jquery-dev"
   , "#jquery-meeting"
   , "#jquery-ot"
+  , "#nlogax"
   , "#runlevel6"
   ]
 , "plugins" : [ "seen", "tell", "wat" ]
