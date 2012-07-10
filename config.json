@@ -23,5 +23,5 @@
   , "#nlogax"
   , "#runlevel6"
   ]
-, "plugins" : [ "seen", "tell", "wat" ]
+, "plugins" : [ "factoid", "seen", "tell", "wat" ]
 }
