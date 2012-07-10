@@ -75,8 +75,8 @@ const load = function( bot ) {
       factoids = obj || {}
   } )
 
-  bot.lookFor( /^:(?:[\/.,`?])?([-_.:|\/\\\w]+) +is[:,]? +(.+)$/,                learn.bind( null, bot ) )
-  bot.lookFor( /^:(?:[\/.,`?])?forget +([-_.:|\/\\\w]+)$/,                       forget.bind( null, bot ) )
+  bot.lookFor( /^:(?:[\/.,`?])([-_.:|\/\\\w]+) +is[:,]? +(.+)$/,                learn.bind( null, bot ) )
+  bot.lookFor( /^:(?:[\/.,`?])forget +([-_.:|\/\\\w]+)$/,                       forget.bind( null, bot ) )
   bot.lookFor( /^:([\/.,`?])?([-_.:|\/\\\w]+)(?: *@ *([-\[\]\{\}`|_\w]+))?\s*$/, speak )
 
   return irc.STATUS.SUCCESS
