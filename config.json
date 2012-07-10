@@ -1,8 +1,8 @@
 { "die" : true
 , "encoding" : "ascii"
-, "flood-protection" : false
+, "flood-protection" : true
 , "log" : "all"
-, "nick" : "ircjsbot"
+, "nick" : "david_mark"
 , "server" :
   { "address" : "chat.freenode.net"
   , "port" : 6667
