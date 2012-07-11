@@ -2,7 +2,7 @@
 , "encoding" : "ascii"
 , "flood-protection" : true
 , "log" : "all"
-, "nick" : "david_mark"
+, "nick" : "b-ot"
 , "server" :
   { "address" : "chat.freenode.net"
   , "port" : 6667
@@ -10,8 +10,8 @@
   }
 , "user" :
   { "hostname" : "interhost"
-  , "realname" : "IRC-JS Bot"
-  , "username" : "irc-js"
+  , "realname" : "Barney Otis"
+  , "username" : "b-ot"
   , "password" : null
   }
 , "channels" :
