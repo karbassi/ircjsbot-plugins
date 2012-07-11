@@ -71,7 +71,7 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       if ( irc.parser.channel( mesg.params[0] ) === null )
         reply += ", saying something to me in private"
       else
-        reply += fmt( ", %s %s, saying “%s”", msg.params[0] === mesg.params[0] ? "here in" : "in"
+        reply += fmt( ", %s %s, saying: %s", msg.params[0] === mesg.params[0] ? "here in" : "in"
                     , mesg.params[0], mesg.params[1].slice( 1 ) )
       break
     case irc.COMMAND.JOIN:
@@ -79,10 +79,10 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       break
     case irc.COMMAND.PART:
       reply += fmt( ", leaving %s%s", mesg.params[0]
-                  , mesg.params[1] ? " with the message “%s”" + mesg.params[1].slice( 1 ) : "." )
+                  , mesg.params[1] ? " with the message: %s" + mesg.params[1].slice( 1 ) : "." )
       break
     case irc.COMMAND.QUIT:
-      reply += fmt( ", quitting with the message “%s”", mesg.params[0].slice( 1 ) )
+      reply += fmt( ", quitting with the message: %s", mesg.params[0].slice( 1 ) )
       break
     case irc.COMMAND.NICK:
       name = mesg.params[0]

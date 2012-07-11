@@ -22,10 +22,10 @@ const getJson = function() {
   https.get( { host: "raw.github.com", path: "/gf3/WAT/master/wat.json" }
     , function( res ) {
         const data = []
-        res.on( "data", function( d ) {
+        res.on( irc.NODE.SOCKET.EVENT.DATA, function( d ) {
           data.push( d )
         } )
-        res.on( "end", function() {
+        res.on( irc.NODE.SOCKET.EVENT.END, function() {
           const arr = JSON.parse( data.join( '' ) )
           logger.log( irc.LEVEL.DEBUG, "Got wat JSON: %s thingies", arr.length )
           rc.sadd( sKey, arr )
