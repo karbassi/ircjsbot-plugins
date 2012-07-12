@@ -49,7 +49,7 @@ const Tell = function( bot ) {
 }
 
 Tell.prototype.error = function( err ) {
-  logger.log( irc.LEVEL.ERROR, "tell.js redis client error: %s", err )
+  logger.error( "tell.js redis client error: %s", err )
 }
 
 Tell.prototype.tell = function( msg, num ) {
@@ -58,7 +58,7 @@ Tell.prototype.tell = function( msg, num ) {
       , key = rds.key( msg.from, RPREFIX )
   this.client.lrange( key, 0, -1, function( err, notes ) {
     if ( err ) {
-      logger.log( irc.LEVEL.ERROR, "Redis error in tell.js Tell.prototype.tell: %s", err )
+      logger.error( "Redis error in tell.js Tell.prototype.tell: %s", err )
       return
     }
     if ( ! notes || 0 === notes.length )
@@ -75,7 +75,7 @@ Tell.prototype.tell = function( msg, num ) {
         continue
       ++new_
       note.new = false
-      logger.log( irc.LEVEL.DEBUG, "Marking note from %s (%s) as not new", note.from, note )
+      logger.debug( "Marking note from %s (%s) as not new", note.from, note )
       this.client.lset( key, i, note.toString() )
     }
     if ( 0 === new_ )
@@ -98,19 +98,20 @@ Tell.prototype.read = function( msg ) {
 
   this.client.lrange( key, 0, -1, function( err, notes ) {
     if ( err ) {
-      logger.log( irc.LEVEL.ERROR, "Redis error in tell.js: %s", err )
+      logger.error( "Redis error in tell.js: %s", err )
       return
     }
 
     if ( ! notes || 0 === notes.length ) {
-      msg.reply( fmt( "%sNo unread messages.", pm ? "" : nick + ", " ) )
+      msg.reply( "%sNo unread messages.", pm ? "" : nick + ", " )
       return
     }
     var l = notes.length
       , note = null
     while ( l-- ) {
       note = Note.fromString( notes[l] )
-      msg.reply( fmt( "%sfrom %s, %s ago: %s", pm ? "" : nick + ", ", note.from, share.timeAgo( note.date ), note.note ) )
+      msg.reply( "%sfrom %s, %s ago: %s", pm ? "" : nick + ", "
+        , note.from, share.timeAgo( note.date ), note.note )
     }
     this.client.del( key )
     return irc.STATUS.STOP  // Prevent "tell" from doing anything
@@ -124,21 +125,21 @@ Tell.prototype.add = function( msg, name, note ) {
   if ( ! forMe )
     return
   if ( key === rds.key( from, RPREFIX ) ) {
-    msg.reply( fmt( "%s, %s", from, note ) )
+    msg.reply( "%s, %s", from, note )
     return
   }
   if ( key === rds.key( this.bot.user.nick, RPREFIX ) ) {
-    msg.reply( fmt( "%s, whatever you say…", from ) )
+    msg.reply( "%s, whatever you say…", from )
     return
   }
   const rnote = new Note( from, key, note )
   this.client.lpush( key, rnote.toString() )
-  msg.reply( fmt( "%s, I’ll tell %s about that.", from, name ) )
-  logger.log( irc.LEVEL.DEBUG, "Added note from %s to %s: %s", from, name, note )
+  msg.reply( "%s, I’ll tell %s about that.", from, name )
+  logger.debug( "Added note from %s to %s: %s", from, name, note )
 }
 
 Tell.prototype.disconnect = function( msg ) {
-  logger.log( irc.LEVEL.INFO, "Telling tell.js Redis client to quit" )
+  logger.info( "Telling tell.js Redis client to quit" )
 }
 
 // Implement Plugin interface.
@@ -148,7 +149,7 @@ const load = function( bot ) {
   bot.observe( irc.COMMAND.PRIVMSG, t.tell.bind( t ) )
   bot.lookFor( /\btell +([-`_\{\}\[\]\^\|\\a-z0-9]+)[:,]? +(.+)$/i, t.add.bind( t ) )
   bot.lookFor( /\bread\b/i, t.read.bind( t ) )
-  logger.log( irc.LEVEL.INFO, "Registered Tell plugin" )
+  logger.info( "Registered Tell plugin" )
   return irc.STATUS.SUCCESS
 }
 

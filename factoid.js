@@ -15,47 +15,62 @@ const logger = irc.logger.get( "ircjs" )
     , sKey   = "FACTOID"
 
 var rc = null
-  , factoids = null
 
 const handleError = function( err ) {
-  logger.log( irc.LEVEL.ERROR, "Factoid Redis client error: %s", err )
+  logger.error( "Factoid Redis client error: %s", err )
 }
 
 // Factoids.
 
+// An object for good old bot-t, handy for checking its presence
+const botT = irc.person( "bot-t" )
+    , botTPrefix = "?"
+
 const speak = function( msg, prefix, trigger, person ) {
-  if ( factoids[trigger] ) {
-    if ( prefix == '?' && irc.channel( msg.params[0] ).people.has( irc.id( "bot-t" ) ) )
+  // Shut up if bot-t's prefix was used and bot-t is there
+  if ( prefix === botTPrefix && irc.channel( msg.params[0] )
+      .people.has( botT.id ) )
+    return
+  rc.hget( sKey, trigger, function( err, res ) {
+    if ( err ) {
+      logger.error( "Error hget:ing factoid: %s", err )
       return
-    else
-      msg.reply( fmt( "%s: %s", person || msg.from.nick, factoids[trigger] ) )
-  }
+    }
+    if ( ! res )
+      return
+    msg.reply( "%s, %s", person || msg.from.nick, res )
+  } )
 }
 
 const learn = function( bot, msg, key, value ) {
-  forget( bot, msg, key )
-  logger.log( irc.LEVEL.DEBUG, "factoid learn `%s`", key )
-  rc.hmset( sKey, key, value, function( err ) {
+  logger.debug( "factoid learn `%s`", key )
+  rc.hset( sKey, key, value, function( err, res ) {
     if ( err ) {
-      logger.log( irc.LEVEL.ERROR, "learn factoid error: %s", err )
+      logger.error( "learn factoid error: %s", err )
       return
     }
-    else {
-      factoids[key] = value
-      msg.reply( fmt("%s: kk", msg.from.nick ) )
-    }
+    logger.debug( "Learned a new factoid: %s", key )
+    msg.reply( "%s, memorised “%s”.", msg.from.nick, key )
   } )
 }
 
 const forget = function( bot, msg, key ) {
-  logger.log( irc.LEVEL.DEBUG, "factoid forget `%s`", key )
-  rc.hdel( sKey, key, function( err ) {
+  logger.debug( "factoid forget `%s`", key )
+  rc.hdel( sKey, key, function( err, res ) {
     if ( err ) {
-      logger.log( irc.LEVEL.ERROR, "forget factoid error: %s", err )
+      logger.error( "forget factoid error: %s", err )
       return
     }
-    else
-      delete factoids[key]
+    // Nothing was deleted
+    if ( res === 0 ) {
+      msg.reply( "%s, I can’t forget that which I do not know.", msg.from.nick )
+      return
+    }
+    const replyText = fmt( "%s, I have forgotten “%s”%s"
+      , msg.from.nick, key
+      , Math.random() > 0.5 ? ". My mind is going, I can feel it." : "." )
+    msg.reply( replyText )
+    logger.debug( "Happily forgot factoid: %s", key )
   } )
 }
 
@@ -69,15 +84,12 @@ const load = function( bot ) {
   rc.auth( TOKEN )
   rc.on( share.redis.EVENT.ERROR, handleError )
 
-  rc.hgetall( sKey, function ( err, obj ) {
-    var i
-    if ( ! err )
-      factoids = obj || {}
-  } )
-
-  bot.lookFor( /^:(?:[\/.,`?])([-_.:|\/\\\w]+) +is[:,]? +(.+)$/,                learn.bind( null, bot ) )
-  bot.lookFor( /^:(?:[\/.,`?])forget +([-_.:|\/\\\w]+)$/,                       forget.bind( null, bot ) )
-  bot.lookFor( /^:([\/.,`?])?([-_.:|\/\\\w]+)(?: *@ *([-\[\]\{\}`|_\w]+))?\s*$/, speak )
+  bot.lookFor( /^:(?:[\/.,`?])([-_.:|\/\\\w]+) +is[:,]? +(.+)$/
+    , learn.bind( null, bot ) )
+  bot.lookFor( /^:(?:[\/.,`?])forget +([-_.:|\/\\\w]+)$/
+    , forget.bind( null, bot ) )
+  bot.lookFor( /^:([\/.,`?])?([-_.:|\/\\\w]+)(?: *@ *([-\[\]\{\}`|_\w]+))?\s*$/
+    , speak )
 
   return irc.STATUS.SUCCESS
 }
@@ -88,9 +100,6 @@ const eject = function() {
   return irc.STATUS.SUCCESS
 }
 
-module.exports =
-  { name:   "Factoid"
-  , load:   load
-  , eject:  eject
-  }
-
+exports.name  = "Factoid"
+exports.load  = load
+exports.eject = eject

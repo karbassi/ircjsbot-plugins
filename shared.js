@@ -11,6 +11,12 @@ const EVENT =
     { ERROR: "error"
     }
 
+// Redis status codes
+const STATUS =
+    { ERROR: 0
+    , SUCCESS: 1
+    }
+
 const getKey = function( nick, prefix ) {
   const id = nick instanceof irc.Person ? nick.id : new irc.Person( nick, null, null ).id
       , p = prefix || "IRCJS"
@@ -53,9 +59,10 @@ exports.join = join
 exports.timeAgo = timeAgo
 
 exports.redis =
-  { EVENT: EVENT
-  , TOKEN: TOKEN
-  , HOST: HOST
-  , PORT: PORT
-  , key: getKey
+  { EVENT:  EVENT
+  , STATUS: STATUS
+  , TOKEN:  TOKEN
+  , HOST:   HOST
+  , PORT:   PORT
+  , key:    getKey
   }

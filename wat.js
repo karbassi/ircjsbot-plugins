@@ -14,7 +14,7 @@ const logger = irc.logger.get( "ircjs" )
 var rc = null
 
 const handleError = function( err ) {
-  logger.log( irc.LEVEL.ERROR, "Wat Redis client error: %s", err )
+  logger.error( "Wat Redis client error: %s", err )
 }
 
 // Go get the latest JSON
@@ -27,17 +27,17 @@ const getJson = function() {
         } )
         res.on( irc.NODE.SOCKET.EVENT.END, function() {
           const arr = JSON.parse( data.join( '' ) )
-          logger.log( irc.LEVEL.DEBUG, "Got wat JSON: %s thingies", arr.length )
+          logger.debug( "Got wat JSON: %s thingies", arr.length )
           rc.sadd( sKey, arr )
         } )
   } )
 }
 
 const onWat = function( msg ) {
-  logger.log( irc.LEVEL.DEBUG, "onWat triggered" )
+  logger.debug( "onWat triggered" )
   rc.srandmember( sKey, function( err, res ) {
     if ( err ) {
-      logger.log( irc.LEVEL.ERROR, "onWat error: %s", err )
+      logger.error( "onWat error: %s", err )
       return
     }
     if ( res )

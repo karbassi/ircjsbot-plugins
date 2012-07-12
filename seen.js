@@ -30,7 +30,7 @@ const Seen = function( bot ) {
 }
 
 Seen.prototype.error = function( err ) {
-  logger.log( irc.LEVEL.ERROR, "Seen Redis client error: %s", err )
+  logger.error( "Seen Redis client error: %s", err )
 }
 
 Seen.prototype.seen = function( msg, name, num ) {
@@ -38,24 +38,24 @@ Seen.prototype.seen = function( msg, name, num ) {
       // Bonus feature: ask for log entry at specific index
       , ix  = num || 0
   if ( msg.from.nick === name )
-    return msg.reply( fmt( "%s, I see you right now, here in %s.", msg.from.nick
-                         , this.bot.user.nick === msg.params[0] ? "our cozy private chat" : msg.params[0] ) )
+    return msg.reply( "%s, I see you right now, here in %s.", msg.from.nick
+                    , this.bot.user.nick === msg.params[0] ? "our cozy private chat" : msg.params[0] )
   if ( this.bot.user.nick === name )
-    return msg.reply( fmt( "%s, I am here with you in %s.", msg.from.nick
-                         , this.bot.user.nick === msg.params[0] ? "our sexy private chat" : msg.params[0] ) )
+    return msg.reply( "%s, I am here with you in %s.", msg.from.nick
+                    , this.bot.user.nick === msg.params[0] ? "our sexy private chat" : msg.params[0] )
   this.client.lindex( key, ix, this.reply.bind( this, msg, name ) )
 }
 
 Seen.prototype.reply = function( msg, name, err, res ) {
-  logger.log( irc.LEVEL.DEBUG, "Replying to `seen` inquiry" )
+  logger.debug( "Replying to `seen` inquiry" )
   if ( err ) {
-    msg.reply( fmt( "%s, I went to see, but there was an error: %s", err ) )
-    logger.log( irc.LEVEL.DEBUG, "`seen` failed: %s", err )
+    msg.reply( "%s, I went to see, but there was an error: %s", err )
+    logger.debug( "`seen` failed: %s", err )
     return
   }
   if ( ! res ) {
-    msg.reply( fmt( "%s, no.", msg.from.nick ) )
-    logger.log( irc.LEVEL.DEBUG, "Did not find any entries for %s", name )
+    msg.reply( "%s, no.", msg.from.nick )
+    logger.debug( "Did not find any entries for %s", name )
     return
   }
   const parts = res.match( /^(\d+)(.+)/ )
@@ -63,7 +63,7 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       , mesg  = irc.parser.message( parts[2] + "\r\n" )
       , ago   = share.timeAgo( date )
   if ( ! mesg )
-    return msg.reply( fmt( "%s, WTF, could not parse this: %s", msg.from.nick, parts[2] ) )
+    return msg.reply( "%s, WTF, could not parse this: %s", msg.from.nick, parts[2] )
 
   var reply = fmt( "%s, I saw %s %s ago", msg.from.nick, name, ago )
   switch ( mesg.type ) {
@@ -89,13 +89,13 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       reply += fmt( ", changing nick to %s", name )
       break
     default:
-      logger.log( irc.LEVEL.DEBUG, mesg, mesg.type )
+      logger.debug( mesg, mesg.type )
       reply += ", doing something I have no description for. The message was: " + parts[2]
       break
   }
 
   msg.reply( reply + "." )
-  logger.log( irc.LEVEL.DEBUG, "Found stuff for %s, replied: %s", name, reply )
+  logger.debug( "Found stuff for %s, replied: %s", name, reply )
 }
 
 Seen.prototype.store = function( msg ) {
