@@ -21,7 +21,6 @@ var tellInstance = null
 const Note = function( from, to, note ) {
   this.date = Date.now()
   this.from = from
-  this.to   = rds.key( to, RPREFIX )
   this.note = note
   this.new  = true
 }
@@ -144,11 +143,13 @@ Tell.prototype.disconnect = function( msg ) {
 
 // Implement Plugin interface.
 
-const load = function( bot ) {
-  const t = new Tell( bot )
-  bot.observe( irc.COMMAND.PRIVMSG, t.tell.bind( t ) )
-  bot.lookFor( /\btell +([-`_\{\}\[\]\^\|\\a-z0-9]+)[:,]? +(.+)$/i, t.add.bind( t ) )
-  bot.lookFor( /\bread\b/i, t.read.bind( t ) )
+const load = function( client ) {
+  const t = new Tell( client )
+  client.observe( irc.COMMAND.PRIVMSG, t.tell.bind( t ) )
+  client.lookFor( fmt( "^:(?:\\b%s\\b[\\s,:]+|[@!\\/?\\.])tell\\s+([-`_\\{\\}\\[\\]\\^\\|a-z0-9]+)[:,]?\\s+(.+)"
+    , client.user.nick ), t.add.bind( t ) )
+  client.lookFor( fmt( "^:(?:\\b%s\\b[\\s,:]+|[@!\\/?\\.])read\\b"
+    , client.user.nick ), t.read.bind( t ) )
   logger.info( "Registered Tell plugin" )
   return irc.STATUS.SUCCESS
 }

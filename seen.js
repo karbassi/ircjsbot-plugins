@@ -108,13 +108,12 @@ Seen.prototype.store = function( msg ) {
 
 // Implement Plugin interface.
 
-const load = function( bot ) {
-  const s = new Seen( bot )
-      , n = bot.user.nick
-  bot.observe( irc.EVENT.ANY
-             , s.store.bind( s ) )
-  bot.lookFor( fmt( "\\b%s\\b.*seen? +([-`_\\{\\}\\[\\]\\^\\|\\\\a-z0-9]+)(?: +(\\d+))?", n )
-             , s.seen.bind( s ) )
+const load = function( client ) {
+  const s = new Seen( client )
+  client.observe( irc.EVENT.ANY, s.store.bind( s ) )
+  client.lookFor( fmt( "^:(?:\\b%s\\b[\\s,:]+|[@!\\/?\\.])seen +([-`_\\{\\}\\[\\]\\^\\|\\\\a-z0-9]+)(?: +(\\d+))?"
+                     , client.user.nick )
+                , s.seen.bind( s ) )
   return irc.STATUS.SUCCESS
 }
 
@@ -125,8 +124,6 @@ const eject = function() {
   return irc.STATUS.SUCCESS
 }
 
-module.exports =
-  { name:   "Seen"
-  , load:   load
-  , eject:  eject
-  }
+exports.name  = "Seen"
+exports.load  = load
+exports.eject = eject
