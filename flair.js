@@ -16,6 +16,7 @@ const load = function( bot ) {
   FLAIR.forEach( function( f ) {
     bot.lookFor( f[0], speak.bind( null, f[1] ) )
   } )
+  return irc.STATUS.SUCCESS
 }
 
 const eject = function() {
