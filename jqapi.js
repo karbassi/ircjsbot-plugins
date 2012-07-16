@@ -52,8 +52,6 @@ const onJQAPI = function( msg ) {
 const load = function( bot ) {
   bot.lookFor( /\?([^#@]+)(?:\s*#([1-9]))?(?:\s*@\s*([-\[\]|_\w]+))?$/, onJQAPI )
   return irc.STATUS.SUCCESS
-  
-  console.log( 'JQAPI LOADED' )
 }
 
 const eject = function() {
