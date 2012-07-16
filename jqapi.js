@@ -1,22 +1,10 @@
-const redis = require( "redis" )
-    , fmt   = require( "util" ).format
+const fmt   = require( "util" ).format
     , https = require( "https" )
     , irc   = require( "irc-js" )
     , share = require( "./shared" )
     , jQJSON = require( "./jqapi.json" )
 
-const TOKEN = share.redis.TOKEN
-    , HOST  = share.redis.HOST
-    , PORT  = share.redis.PORT
-
 const logger = irc.logger.get( "ircjs" )
-    , sKey   = "JQAPI"
-
-var rc = null
-
-const handleError = function( err ) {
-  logger.error( "JQAPI Redis client error: %s", err )
-}
 
 const onJQAPI = function( msg ) {
   
@@ -63,12 +51,6 @@ const onJQAPI = function( msg ) {
 }
 
 const load = function( bot ) {
-  
-  if ( rc )
-    return irc.STATUS.SUCCESS
-  rc = redis.createClient( PORT, HOST )
-  rc.auth( TOKEN )
-  rc.on( share.redis.EVENT.ERROR, handleError )
   bot.lookFor( /\?([^#@]+)(?:\s*#([1-9]))?(?:\s*@\s*([-\[\]|_\w]+))?$/, onJQAPI )
   return irc.STATUS.SUCCESS
   
@@ -76,8 +58,6 @@ const load = function( bot ) {
 }
 
 const eject = function() {
-  if ( rc )
-    rc.quit()
   return irc.STATUS.SUCCESS
 }
 
