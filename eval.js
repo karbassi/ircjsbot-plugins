@@ -41,7 +41,7 @@ const shell = function( exe, args, code, hb ) {
 // Languages
 
 const clojure = function( msg, code, person ) {
-  shell( "java", [ "-jar", __dirname + "/eval/srepl-1.0.0-SNAPSHOT-standalone.jar" ]
+  shell( "java", [ "-jar", __dirname + "/eval/srepl-1.0.0-standalone.jar" ]
         , code
         , function( stdout, stderr ) {
           if ( stderr )
