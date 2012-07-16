@@ -29,7 +29,7 @@ const responses =
   ]
 
 const getFortune = function( msg ) {
-  msg.reply( responses[ Math.round( ( responses.length - 1 ) * Math.random() ) ] )
+  msg.reply( responses[ Math.floor( responses.length * Math.random() ) ] )
 }
 
 const load = function( client ) {
