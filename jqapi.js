@@ -3,11 +3,10 @@ const fmt   = require( "util" ).format
     , irc   = require( "irc-js" )
     , share = require( "./shared" )
     , jQJSON = require( "./jqapi.json" )
-
-const logger = irc.logger.get( "ircjs" )
+    , logger = irc.logger.get( "ircjs" )
 
 const onJQAPI = function( msg ) {
-  
+
   logger.debug( "onJQAPI triggered" )
   
   const splat = msg.params[ 1 ].split( ' ' )
@@ -17,7 +16,7 @@ const onJQAPI = function( msg ) {
       
   var res = ''
   
-  if( splat.length ) {
+  if ( splat.length ) {
       Object.keys( a ).map( function( k ) {
         
         var name = a[ k ].name
@@ -27,7 +26,7 @@ const onJQAPI = function( msg ) {
         
         // search for selector
         if ( s.indexOf( ':' ) >= 0 ) {
-          if( title.indexOf( 'Selector' ) >= 0 && name == s.replace( ':', '' ) ) {
+          if ( title.indexOf( 'Selector' ) >= 0 && name == s.replace( ':', '' ) ) {
             res = title + ': ' + desc + ' ' + url
             return
           }
@@ -41,7 +40,7 @@ const onJQAPI = function( msg ) {
     }
     
     // say what you need to say
-    if( res != '' ) {
+    if ( res != '' ) {
       if ( to ) {
         msg.reply( to + ': ' + res )
       } else {
