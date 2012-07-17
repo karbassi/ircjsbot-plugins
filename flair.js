@@ -1,6 +1,7 @@
 /**
  * @module flair
  */
+const irc = require( "irc-js" )
 
 const FLAIR =
   [ [ /\balligator\b/i, "---,==,'<" ]
