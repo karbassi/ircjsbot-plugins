@@ -10,7 +10,7 @@ const redis = require( "redis" )
 
 const rds = share.redis
 
-const logger = irc.logger.get( "ircjs" )
+const log = irc.logger.get( "ircjs-plugin-tell" )
 
 const RPREFIX = "TELL"
 
@@ -48,7 +48,7 @@ const Tell = function( bot ) {
 }
 
 Tell.prototype.error = function( err ) {
-  logger.error( "tell.js redis client error: %s", err )
+  log.error( "tell.js redis client error: %s", err )
 }
 
 Tell.prototype.tell = function( msg, num ) {
@@ -57,7 +57,7 @@ Tell.prototype.tell = function( msg, num ) {
       , key = rds.key( msg.from, RPREFIX )
   this.client.lrange( key, 0, -1, function( err, notes ) {
     if ( err ) {
-      logger.error( "Redis error in tell.js Tell.prototype.tell: %s", err )
+      log.error( "Redis error in tell.js Tell.prototype.tell: %s", err )
       return
     }
     if ( ! notes || 0 === notes.length )
@@ -74,7 +74,7 @@ Tell.prototype.tell = function( msg, num ) {
         continue
       ++new_
       note.new = false
-      logger.debug( "Marking note from %s (%s) as not new", note.from, note )
+      log.debug( "Marking note from %s (%s) as not new", note.from, note )
       this.client.lset( key, i, note.toString() )
     }
     if ( 0 === new_ )
@@ -97,7 +97,7 @@ Tell.prototype.read = function( msg ) {
 
   this.client.lrange( key, 0, -1, function( err, notes ) {
     if ( err ) {
-      logger.error( "Redis error in tell.js: %s", err )
+      log.error( "Redis error in tell.js: %s", err )
       return
     }
 
@@ -134,12 +134,12 @@ Tell.prototype.add = function( msg, name, note ) {
   const rnote = new Note( from, key, note )
   this.client.lpush( key, rnote.toString() )
   msg.reply( "%s, I’ll tell %s about that.", from, name )
-  logger.debug( "Added note from %s to %s: %s", from, name, note )
+  log.debug( "Added note from %s to %s: %s", from, name, note )
   return irc.STATUS.STOP
 }
 
 Tell.prototype.disconnect = function( msg ) {
-  logger.info( "Telling tell.js Redis client to quit" )
+  log.info( "Telling tell.js Redis client to quit" )
 }
 
 // Implement Plugin interface.
@@ -151,7 +151,7 @@ const load = function( client ) {
     , client.user.nick ), t.add.bind( t ) )
   client.lookFor( fmt( "^:(?:\\b%s\\b[\\s,:]+|[@!\\/?\\.])read\\b"
     , client.user.nick ), t.read.bind( t ) )
-  logger.info( "Registered Tell plugin" )
+  log.info( "Registered Tell plugin" )
   return irc.STATUS.SUCCESS
 }
 

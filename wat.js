@@ -8,13 +8,13 @@ const TOKEN = share.redis.TOKEN
     , HOST  = share.redis.HOST
     , PORT  = share.redis.PORT
 
-const logger = irc.logger.get( "ircjs" )
-    , sKey   = "WAT"
+const log   = irc.logger.get( "ircjs-plugin-wat" )
+    , sKey  = "WAT"
 
 var rc = null
 
 const handleError = function( err ) {
-  logger.error( "Wat Redis client error: %s", err )
+  log.error( "Wat Redis client error: %s", err )
 }
 
 // Go get the latest JSON
@@ -27,17 +27,17 @@ const getJson = function() {
         } )
         res.on( irc.NODE.SOCKET.EVENT.END, function() {
           const arr = JSON.parse( data.join( '' ) )
-          logger.debug( "Got wat JSON: %s thingies", arr.length )
+          log.debug( "Got wat JSON: %s thingies", arr.length )
           rc.sadd( sKey, arr )
         } )
   } )
 }
 
 const onWat = function( msg ) {
-  logger.debug( "onWat triggered" )
+  log.debug( "onWat triggered" )
   rc.srandmember( sKey, function( err, res ) {
     if ( err ) {
-      logger.error( "onWat error: %s", err )
+      log.error( "onWat error: %s", err )
       return
     }
     if ( res )

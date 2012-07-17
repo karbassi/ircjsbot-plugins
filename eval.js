@@ -7,7 +7,7 @@ const fmt   = require( "util" ).format
     , spawn = require( "child_process" ).spawn
     , share = require( "./shared" )
 
-const logger = irc.logger.get( "ircjs" )
+const log = irc.logger.get( "ircjs-plugin-eval" )
 
 const death = function( msg, code, error ) {
   msg.reply( fmt( "%s, oh nooo, there was an error: %s", msg.from.nick, error ) )

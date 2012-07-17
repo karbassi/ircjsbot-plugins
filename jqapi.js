@@ -1,13 +1,13 @@
-const fmt   = require( "util" ).format
-    , https = require( "https" )
-    , irc   = require( "irc-js" )
-    , share = require( "./shared" )
-    , jQJSON = require( "./jqapi.json" )
-    , logger = irc.logger.get( "ircjs" )
+const fmt     = require( "util" ).format
+    , https   = require( "https" )
+    , irc     = require( "irc-js" )
+    , share   = require( "./shared" )
+    , jQJSON  = require( "./jqapi.json" )
+    , log     = irc.logger.get( "ircjs-plugin-jqapi" )
 
 const onJQAPI = function( msg ) {
 
-  logger.debug( "onJQAPI triggered" )
+  log.debug( "onJQAPI triggered" )
   
   const splat = msg.params[ 1 ].split( ' ' )
       , s = splat[ 0 ].replace( ':?', '' )

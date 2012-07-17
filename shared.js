@@ -37,6 +37,7 @@ const labels = [ "s", "m", "h", "d", "w" ]
  *  @param {Date|number}  t     E.g. 1342489409837 from Date.now()
  */
 const timeAgo = function( t ) {
+  const out = []
   var rem = Date.now() - t
     , idx = times.length
     , cnt = 0
@@ -50,14 +51,6 @@ const timeAgo = function( t ) {
   return out.splice( 0, 2 ).join( ' ' )
 }
 
-const join = function( arr ) {
-  const last = arr.pop()
-  if ( arr.length === 0 )
-    return last
-  return fmt( "%s and %s", arr.join( ", " ), last )
-}
-
-exports.join = join
 exports.timeAgo = timeAgo
 
 exports.redis =

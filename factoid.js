@@ -11,11 +11,11 @@ const TOKEN = share.redis.TOKEN
     , HOST  = share.redis.HOST
     , PORT  = share.redis.PORT
 
-const logger = irc.logger.get( "ircjs-plugin-factoid" )
-    , sKey   = "FACTOID"
+const log   = irc.logger.get( "ircjs-plugin-factoid" )
+    , sKey  = "FACTOID"
 
 const handleError = function( err ) {
-  logger.error( "Factoid Redis client error: %s", err )
+  log.error( "Factoid Redis client error: %s", err )
 }
 
 const redisClient = redis.createClient( PORT, HOST )
@@ -38,7 +38,7 @@ const speak = function( client, msg, prefix, trigger, person ) {
     return
   redisClient.hget( sKey, trigger, function( err, res ) {
     if ( err ) {
-      logger.error( "Error hget:ing factoid: %s", err )
+      log.error( "Error hget:ing factoid: %s", err )
       return
     }
     if ( ! res )
@@ -48,22 +48,22 @@ const speak = function( client, msg, prefix, trigger, person ) {
 }
 
 const learn = function( msg, key, value ) {
-  logger.debug( "factoid learn `%s`", key )
+  log.debug( "factoid learn `%s`", key )
   redisClient.hset( sKey, key, value, function( err, res ) {
     if ( err ) {
-      logger.error( "learn factoid error: %s", err )
+      log.error( "learn factoid error: %s", err )
       return
     }
-    logger.debug( "Learned a new factoid: %s", key )
+    log.debug( "Learned a new factoid: %s", key )
     msg.reply( "%s, memorised “%s”.", msg.from.nick, key )
   } )
 }
 
 const forget = function( msg, key ) {
-  logger.debug( "factoid forget `%s`", key )
+  log.debug( "factoid forget `%s`", key )
   redisClient.hdel( sKey, key, function( err, res ) {
     if ( err ) {
-      logger.error( "forget factoid error: %s", err )
+      log.error( "forget factoid error: %s", err )
       return
     }
     // Nothing was deleted
@@ -75,7 +75,7 @@ const forget = function( msg, key ) {
       , msg.from.nick, key
       , Math.random() > 0.5 ? ". My mind is going, I can feel it." : "." )
     msg.reply( replyText )
-    logger.debug( "Happily forgot factoid: %s", key )
+    log.debug( "Happily forgot factoid: %s", key )
   } )
 }
 

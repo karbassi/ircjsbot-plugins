@@ -14,7 +14,7 @@ const getKey = function( id ) {
   return share.redis.key( id, "SEEN" )
 }
 
-const logger = irc.logger.get( "ircjs-plugin-seen" )
+const log = irc.logger.get( "ircjs-plugin-seen" )
 
 var seenInstance = null
 
@@ -30,7 +30,7 @@ const Seen = function( bot ) {
 }
 
 Seen.prototype.error = function( err ) {
-  logger.error( "Seen Redis client error: %s", err )
+  log.error( "Seen Redis client error: %s", err )
 }
 
 Seen.prototype.seen = function( msg, name, num ) {
@@ -49,15 +49,15 @@ Seen.prototype.seen = function( msg, name, num ) {
 }
 
 Seen.prototype.reply = function( msg, name, err, res ) {
-  logger.debug( "Replying to `seen` inquiry" )
+  log.debug( "Replying to `seen` inquiry" )
   if ( err ) {
     msg.reply( "%s, I went to see, but there was an error: %s", msg.from.nick, err )
-    logger.debug( "`seen` failed: %s", err )
+    log.debug( "`seen` failed: %s", err )
     return
   }
   if ( ! res ) {
     msg.reply( "%s, I have never seen %s.", msg.from.nick, name )
-    logger.debug( "Did not find any entries for %s", name )
+    log.debug( "Did not find any entries for %s", name )
     return
   }
   const parts = res.match( /^(\d+)(.+)/ )
@@ -91,13 +91,13 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       reply += fmt( ", changing nick to %s.", name )
       break
     default:
-      logger.debug( mesg, mesg.type )
+      log.debug( mesg, mesg.type )
       reply += ", doing something I have no description for. The message was: " + parts[2]
       break
   }
 
   msg.reply( reply )
-  logger.debug( "Found stuff for %s, replied: %s", name, reply )
+  log.debug( "Found stuff for %s, replied: %s", name, reply )
   return irc.STATUS.STOP
 }
 
