@@ -135,6 +135,7 @@ Tell.prototype.add = function( msg, name, note ) {
   this.client.lpush( key, rnote.toString() )
   msg.reply( "%s, I’ll tell %s about that.", from, name )
   logger.debug( "Added note from %s to %s: %s", from, name, note )
+  return irc.STATUS.STOP
 }
 
 Tell.prototype.disconnect = function( msg ) {

@@ -51,7 +51,7 @@ const load = function( bot ) {
   rc = redis.createClient( PORT, HOST )
   rc.auth( TOKEN )
   rc.on( share.redis.EVENT.ERROR, handleError )
-  bot.lookFor( /\bwat\b/, onWat )
+  bot.lookFor( /\bw[au]t\b/i, onWat )
   getJson()
   return irc.STATUS.SUCCESS
 }

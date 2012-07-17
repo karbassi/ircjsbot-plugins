@@ -24,18 +24,20 @@ const getKey = function( nick, prefix ) {
 }
 
 const times =
-  [ 1000
-  , 60 * 1000
-  , 60 * 60 * 1000
-  , 24 * 60 * 60 * 1000
-  , 7  * 24 * 60 * 60 * 1000
-  ]
+  [ 1000      // Second
+  , 60000     // Minute
+  , 3600000   // Hour
+  , 86400000  // Day
+  , 604800000 // Week
+  ]           // Right square bracket
 
 const labels = [ "s", "m", "h", "d", "w" ]
 
-const timeAgo = function( t, acc ) {
-  const out = acc || []
-  var rem = Math.round( Date.now() - t )
+/** Input a JS timestamp, get a nice string like "1h 2s", which is the amount of time passed since then.
+ *  @param {Date|number}  t     E.g. 1342489409837 from Date.now()
+ */
+const timeAgo = function( t ) {
+  var rem = Date.now() - t
     , idx = times.length
     , cnt = 0
   while ( idx-- ) {

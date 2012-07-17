@@ -14,7 +14,7 @@ const getKey = function( id ) {
   return share.redis.key( id, "SEEN" )
 }
 
-const logger = irc.logger.get( "ircjs" )
+const logger = irc.logger.get( "ircjs-plugin-seen" )
 
 var seenInstance = null
 
@@ -38,23 +38,25 @@ Seen.prototype.seen = function( msg, name, num ) {
       // Bonus feature: ask for log entry at specific index
       , ix  = num || 0
   if ( msg.from.nick === name )
-    return msg.reply( "%s, I see you right now, here in %s.", msg.from.nick
-                    , this.bot.user.nick === msg.params[0] ? "our cozy private chat" : msg.params[0] )
-  if ( this.bot.user.nick === name )
-    return msg.reply( "%s, I am here with you in %s.", msg.from.nick
-                    , this.bot.user.nick === msg.params[0] ? "our sexy private chat" : msg.params[0] )
-  this.client.lindex( key, ix, this.reply.bind( this, msg, name ) )
+    msg.reply( "%s, I see you right now, here in %s.", msg.from.nick
+             , this.bot.user.nick === msg.params[0] ? "our cozy private chat" : msg.params[0] )
+  else if ( this.bot.user.nick === name )
+    msg.reply( "%s, I am here with you in %s.", msg.from.nick
+             , this.bot.user.nick === msg.params[0] ? "our sexy private chat" : msg.params[0] )
+  else
+    this.client.lindex( key, ix, this.reply.bind( this, msg, name ) )
+  return irc.STATUS.STOP
 }
 
 Seen.prototype.reply = function( msg, name, err, res ) {
   logger.debug( "Replying to `seen` inquiry" )
   if ( err ) {
-    msg.reply( "%s, I went to see, but there was an error: %s", err )
+    msg.reply( "%s, I went to see, but there was an error: %s", msg.from.nick, err )
     logger.debug( "`seen` failed: %s", err )
     return
   }
   if ( ! res ) {
-    msg.reply( "%s, no.", msg.from.nick )
+    msg.reply( "%s, I have never seen %s.", msg.from.nick, name )
     logger.debug( "Did not find any entries for %s", name )
     return
   }
@@ -69,13 +71,13 @@ Seen.prototype.reply = function( msg, name, err, res ) {
   switch ( mesg.type ) {
     case irc.COMMAND.PRIVMSG:
       if ( irc.parser.channel( mesg.params[0] ) === null )
-        reply += ", saying something to me in private"
+        reply += ", saying something to me in private."
       else
         reply += fmt( ", %s %s, saying: %s", msg.params[0] === mesg.params[0] ? "here in" : "in"
                     , mesg.params[0], mesg.params[1].slice( 1 ) )
       break
     case irc.COMMAND.JOIN:
-      reply += fmt( ", joining %s", mesg.params[0] )
+      reply += fmt( ", joining %s.", mesg.params[0] )
       break
     case irc.COMMAND.PART:
       reply += fmt( ", leaving %s%s", mesg.params[0]
@@ -86,7 +88,7 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       break
     case irc.COMMAND.NICK:
       name = mesg.params[0]
-      reply += fmt( ", changing nick to %s", name )
+      reply += fmt( ", changing nick to %s.", name )
       break
     default:
       logger.debug( mesg, mesg.type )
@@ -94,8 +96,9 @@ Seen.prototype.reply = function( msg, name, err, res ) {
       break
   }
 
-  msg.reply( reply + "." )
+  msg.reply( reply )
   logger.debug( "Found stuff for %s, replied: %s", name, reply )
+  return irc.STATUS.STOP
 }
 
 Seen.prototype.store = function( msg ) {

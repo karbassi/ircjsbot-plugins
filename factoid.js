@@ -11,14 +11,18 @@ const TOKEN = share.redis.TOKEN
     , HOST  = share.redis.HOST
     , PORT  = share.redis.PORT
 
-const logger = irc.logger.get( "ircjs" )
+const logger = irc.logger.get( "ircjs-plugin-factoid" )
     , sKey   = "FACTOID"
-
-var rc = null
 
 const handleError = function( err ) {
   logger.error( "Factoid Redis client error: %s", err )
 }
+
+const redisClient = redis.createClient( PORT, HOST )
+redisClient.auth( TOKEN )
+redisClient.on( share.redis.EVENT.ERROR, handleError )
+
+
 
 // Factoids.
 
@@ -26,12 +30,13 @@ const handleError = function( err ) {
 const botT = irc.person( "bot-t" )
     , botTPrefix = "?"
 
-const speak = function( msg, prefix, trigger, person ) {
+const speak = function( client, msg, prefix, trigger, person ) {
+  const isPM = msg.params[0] === client.user.nick
   // Shut up if bot-t's prefix was used and bot-t is there
-  if ( prefix === botTPrefix && irc.channel( msg.params[0] )
-      .people.has( botT.id ) )
+  if ( !isPM && prefix === botTPrefix &&
+        irc.channel( msg.params[0] ).people.has( botT.id ) )
     return
-  rc.hget( sKey, trigger, function( err, res ) {
+  redisClient.hget( sKey, trigger, function( err, res ) {
     if ( err ) {
       logger.error( "Error hget:ing factoid: %s", err )
       return
@@ -42,9 +47,9 @@ const speak = function( msg, prefix, trigger, person ) {
   } )
 }
 
-const learn = function( bot, msg, key, value ) {
+const learn = function( msg, key, value ) {
   logger.debug( "factoid learn `%s`", key )
-  rc.hset( sKey, key, value, function( err, res ) {
+  redisClient.hset( sKey, key, value, function( err, res ) {
     if ( err ) {
       logger.error( "learn factoid error: %s", err )
       return
@@ -54,9 +59,9 @@ const learn = function( bot, msg, key, value ) {
   } )
 }
 
-const forget = function( bot, msg, key ) {
+const forget = function( msg, key ) {
   logger.debug( "factoid forget `%s`", key )
-  rc.hdel( sKey, key, function( err, res ) {
+  redisClient.hdel( sKey, key, function( err, res ) {
     if ( err ) {
       logger.error( "forget factoid error: %s", err )
       return
@@ -76,27 +81,18 @@ const forget = function( bot, msg, key ) {
 
 // Implement Plugin interface.
 
-const load = function( bot ) {
-  if ( rc )
-    return irc.STATUS.SUCCESS
-
-  rc = redis.createClient( PORT, HOST )
-  rc.auth( TOKEN )
-  rc.on( share.redis.EVENT.ERROR, handleError )
-
-  bot.lookFor( /^:(?:[\/.,`?])([-_.:|\/\\\w]+) +is[:,]? +(.+)$/
-    , learn.bind( null, bot ) )
-  bot.lookFor( /^:(?:[\/.,`?])forget +([-_.:|\/\\\w]+)$/
-    , forget.bind( null, bot ) )
-  bot.lookFor( /^:([\/.,`?])?([-_.:|\/\\\w]+)(?: *@ *([-\[\]\{\}`|_\w]+))?\s*$/
-    , speak )
+const load = function( client ) {
+  client.lookFor( /^:(?:[\/.,`?])([-_.:|\/\\\w]+) +is[:,]? +(.+)$/
+    , learn )
+  client.lookFor( /^:(?:[\/.,`?])forget +([-_.:|\/\\\w]+)$/
+    , forget )
+  client.lookFor( /^:([\/.,`?])?([-_.:|\/\\\w]+)(?: *@ *([-\[\]\{\}`|_\w]+))?\s*$/
+    , speak.bind( null, client ) )
 
   return irc.STATUS.SUCCESS
 }
 
 const eject = function() {
-  if ( rc )
-    rc.quit()
   return irc.STATUS.SUCCESS
 }
 
